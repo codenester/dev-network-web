@@ -1,7 +1,8 @@
-export default function(){
-    return(
+export default function ({ name }: { name?: string }) {
+    return (
         <nav>
-            <button>Register</button>
+            <p>{name}</p>
+            {/* <button>Register</button> */}
         </nav>
     )
 }
