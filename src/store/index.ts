@@ -1,18 +1,23 @@
+import { THeader } from "./../components/layouts/headers/Header";
 import { createSlice, configureStore, PayloadAction } from "@reduxjs/toolkit";
-import { FC } from "react";
-const initialState: FC<{ name?: string }>[] = []
-export const viewSlice = createSlice({
+const initialState: THeader[] = [];
+export const dialogSlice = createSlice({
   name: "dialog",
   initialState,
   reducers: {
-    add(state, action: PayloadAction<FC<{ name?: string }>>) { state.push(action.payload) },
-    remove(state) { state.pop() },
+    add(state, action: PayloadAction<THeader>) {
+      state.push(action.payload);
+    },
+    remove(state) {
+      state.pop();
+    },
   },
 });
 
-export const viewStore = configureStore({
+export const store = configureStore({
   reducer: {
-    dialogs: viewSlice.reducer
+    dialogs: dialogSlice.reducer,
   },
-  middleware: (getDefaultMiddleware) => getDefaultMiddleware({ serializableCheck: false })
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({ serializableCheck: false }),
 });
