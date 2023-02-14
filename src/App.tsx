@@ -1,10 +1,20 @@
-import { useSelector } from 'react-redux'
+import { useContext, useEffect } from 'react';
 import './App.css'
-import { TCookie, TDialogState } from './store'
+import { CookieContext } from './contexts';
 
 function App() {
-  const dialogs: TDialogState[] = useSelector((state: { dialogs: TDialogState[] }) => state.dialogs)
-  const cookie: TCookie = useSelector((state: TCookie) => state);
+  const dialogs: any[] = [];
+  const { cookie, setCookie, removeCookie } = useContext(CookieContext)
+  const login = () => {
+    const token = prompt('enter token')
+    if (token) setCookie({ name: 'token', value: token })
+  }
+  const logout = () => {
+    removeCookie('token')
+  }
+  useEffect(() => {
+    console.log(cookie.token)
+  }, [])
   return (
     <div className="App">
       {dialogs.some(d => d.isShow) ?
@@ -13,7 +23,8 @@ function App() {
         </div> : <div>
           {cookie.token ? <div>
             Body
-          </div> : <div>Login</div>}
+            <button onClick={logout}>Logout</button>
+          </div> : <div><button onClick={login}>Login</button></div>}
         </div>
       }
     </div>
