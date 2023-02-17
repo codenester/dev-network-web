@@ -5,14 +5,18 @@ type TCookie = { token?: string, deviceId?: string, refreshToken?: string, third
 type TCookiePayload = { value?: string, getFromOriginOnly: boolean }
 type TCookieAction = { type: TCookieName, payload?: TCookiePayload }
 const cookieReducer: Reducer<TCookie, TCookieAction> = (state, action) => {
+  const envMap = action.type === 'token' ? import.meta.env.COOKIE_ACCESS_TOKEN :
+    action.type === 'deviceId' ? import.meta.env.COOKIE_DEVICE_ID :
+      action.type === 'refreshToken' ? import.meta.env.COOKIE_REFRESH_TOKEN :
+        import.meta.env.THIRD_PARTY_TOKEN
   if (action.payload?.value) {
     if (!action.payload.getFromOriginOnly) {
-      setCookie({ name: action.type, value: action.payload.value })
+      setCookie({ name: envMap, value: action.payload.value })
     }
-    const cookie = getCookie(action.type)
+    const cookie = getCookie(envMap)
     return { ...state, [action.type]: cookie }
   }
-  deleteCookie(action.type)
+  deleteCookie(envMap)
   return { ...state, [action.type]: undefined };
 }
 type TCookieArgs = { name: TCookieName, value?: string }
