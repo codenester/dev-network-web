@@ -4,7 +4,7 @@ import App from './App'
 import './index.css'
 import { initializeApp } from 'firebase/app'
 import { getStorage } from 'firebase/storage'
-import CookieProvider from './contexts'
+import { CookieProvider } from './contexts'
 import { QueryClient, QueryClientProvider } from 'react-query'
 const firebaseConfig = {
   apiKey: import.meta.env.FIREBASE_KEY,

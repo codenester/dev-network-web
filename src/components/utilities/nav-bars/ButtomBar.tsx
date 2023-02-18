@@ -1,8 +1,8 @@
 import { FC } from "react";
 
-const ButtomBar: FC = () => {
+const BottomBar: FC = () => {
   return (
-    <div>Buttom Bar</div>
+    <div>Bottom Bar</div>
   )
 }
-export default ButtomBar
+export default BottomBar

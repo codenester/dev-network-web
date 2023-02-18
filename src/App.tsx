@@ -1,13 +1,14 @@
 import { useContext, useEffect } from 'react';
 import './App.css'
-import { CookieContext } from './contexts';
+import { CookieContext } from './contexts/cookie-context';
+import LoginRegisterPage from './pages/login-register';
 
 function App() {
   const dialogs: any[] = [];
-  const { cookie, setCookie, removeCookie } = useContext(CookieContext)
+  const { cookie } = useContext(CookieContext)
   useEffect(() => {
-    console.log(cookie.token)
-  }, [])
+    if (cookie.token) console.log(cookie.token)
+  }, [cookie.token])
   return (
     <div className="App">
       {dialogs.some(d => d.isShow) ?
@@ -16,7 +17,7 @@ function App() {
         </div> : <div>
           {cookie.token ? <div>
             Body
-          </div> : <div></div>}
+          </div> : <LoginRegisterPage />}
         </div>
       }
     </div>

@@ -1,25 +1,25 @@
 import { FC, createContext, Reducer, useReducer, ReactNode } from "react";
 import { deleteCookie, getCookie, setCookie } from "../utilities";
-type TCookieName = 'token' | 'deviceId' | 'refreshToken' | 'thirdPartyToken';
-type TCookie = { token?: string, deviceId?: string, refreshToken?: string, thirdPartyToken?: string }
-type TCookiePayload = { value?: string, getFromOriginOnly: boolean }
+type TCookieName = 'token' | 'deviceId' | 'refreshToken' | 'thirdPartyToken' | 'isRegister';
+type TCookie = { token?: string, deviceId?: string, refreshToken?: string, thirdPartyToken?: string, isRegister?: boolean }
+type TCookiePayload = { value?: string | boolean, getFromOriginOnly: boolean }
 type TCookieAction = { type: TCookieName, payload?: TCookiePayload }
 const cookieReducer: Reducer<TCookie, TCookieAction> = (state, action) => {
   const envMap = action.type === 'token' ? import.meta.env.COOKIE_ACCESS_TOKEN :
     action.type === 'deviceId' ? import.meta.env.COOKIE_DEVICE_ID :
       action.type === 'refreshToken' ? import.meta.env.COOKIE_REFRESH_TOKEN :
-        import.meta.env.THIRD_PARTY_TOKEN
+        action.type === 'thirdPartyToken' ? import.meta.env.THIRD_PARTY_TOKEN : 'is-register'
   if (action.payload?.value) {
     if (!action.payload.getFromOriginOnly) {
-      setCookie({ name: envMap, value: action.payload.value })
+      setCookie({ name: envMap, value: action.payload.value.toString() })
     }
     const cookie = getCookie(envMap)
-    return { ...state, [action.type]: cookie }
+    return { ...state, [action.type]: action.type === 'isRegister' ? Boolean(cookie) : cookie }
   }
   deleteCookie(envMap)
   return { ...state, [action.type]: undefined };
 }
-type TCookieArgs = { name: TCookieName, value?: string }
+type TCookieArgs = { name: TCookieName, value?: string | boolean }
 type TSetCookieFunc = (args: TCookieArgs) => void
 type TRemoveCookieFunc = (args: TCookieName) => void
 type TRebaseCookieFunc = (args: TCookieArgs) => void
@@ -30,7 +30,13 @@ type TCookieContext = {
   rebaseCookie: TRebaseCookieFunc
 }
 
-const cookieInitialState: TCookie = { token: getCookie('token') }
+const cookieInitialState: TCookie = {
+  token: getCookie(import.meta.env.COOKIE_ACCESS_TOKEN),
+  refreshToken: getCookie(import.meta.env.COOKIE_REFRESH_TOKEN),
+  deviceId: getCookie(import.meta.env.COOKIE_DEVICE_ID),
+  thirdPartyToken: getCookie(import.meta.env.THIRD_PARTY_TOKEN),
+  isRegister: Boolean(getCookie('is-register'))
+}
 export const CookieContext = createContext<TCookieContext>({
   cookie: {},
   setCookie: () => { return },
