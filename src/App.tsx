@@ -1,7 +1,7 @@
-import { createTheme, CssBaseline, ThemeProvider } from '@mui/material';
+import { Box, Container, createTheme, CssBaseline, Paper, ThemeProvider } from '@mui/material';
 import { useContext, useEffect, useMemo } from 'react';
 import { RouterProvider } from 'react-router-dom';
-import { TMe, useMe } from './api/hook';
+import { useMe } from './api/hook';
 import './App.css'
 import { CookieContext } from './contexts/cookie-context';
 import { LocalStorageContext } from './contexts/local-storage-context';
@@ -12,7 +12,7 @@ function App() {
   const dialogs: any[] = [];
   const { cookie } = useContext(CookieContext)
   const { localStorage } = useContext(LocalStorageContext)
-  const theme = useMemo(() => createTheme({ palette: { mode: localStorage.theme } }), [localStorage.theme])
+  const theme = useMemo(() => createTheme({ palette: { mode: 'dark' } }), [localStorage.theme])
   const { refetch } = useMe({
     onError: err => console.log(err),
     onSuccess: async (res) => {
@@ -28,15 +28,14 @@ function App() {
     <div className="App">
       <CssBaseline enableColorScheme>
         <ThemeProvider theme={theme}>
-          {dialogs.some(d => d.isShow) ?
-            <div>
-              {dialogs.map(({ Component }, i) => (<Component key={i} />))}
-            </div> : <div>
-              {cookie.token ?
-                <RouterProvider router={router} />
-                : <LoginRegisterPage />}
-            </div>
-          }
+          <Box sx={{ position: 'fixed', display: 'flex', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'background.default', p: 3, alignItems: 'center', justifyContent: 'center' }}>
+            {dialogs.some(d => d.isShow) ?
+              <div>
+                {dialogs.map(({ Component }, i) => (<Component key={i} />))}
+              </div> :
+              (cookie.token ? <RouterProvider router={router} /> : <LoginRegisterPage />)
+            }
+          </Box>
         </ThemeProvider>
       </CssBaseline>
     </div>
