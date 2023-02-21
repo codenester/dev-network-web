@@ -3,7 +3,7 @@ import { useLogin } from "../../api/hook";
 import { CookieContext } from "../../contexts/cookie-context";
 import { FormikErrors, useFormik } from "formik";
 import { TLoginInput } from "../../api/post-method";
-import { Card, CardContent, CardHeader, FormControl, FormHelperText, Input, InputLabel, Link, OutlinedInput, TextField, Typography } from "@mui/material";
+import { Box, Button, Card, CardActions, CardContent, CardHeader, Divider, FormControl, FormHelperText, Input, InputLabel, Link, OutlinedInput, TextField, Typography } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 type TLoginResponse = {
   token: string,
@@ -62,9 +62,15 @@ const LoginForm: FC = () => {
             <FormHelperText error={!!errors.password}>{errors.password ?? ""}</FormHelperText>
           </FormControl>
           <Link href="#" variant="body2" onClick={_ => { }}>Forgot password?</Link>
-          <LoadingButton loading={isLoading} loadingPosition="center" sx={{ mt: 1, borderRadius: 5 }} variant="contained" color="success" type="submit">Login</LoadingButton>
+          <LoadingButton loading={isLoading} loadingPosition="center" sx={{ mt: 1 }} variant="outlined" color="success" type="submit">Login</LoadingButton>
         </form>
       </CardContent>
+      <CardActions sx={{ display: 'flex', flexDirection: 'column', gap: 1, justifyContent: 'center' }}>
+        <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center' }}>
+          <Typography>No account?</Typography><Link href="#" onClick={registerClick}>Register</Link>
+        </Box>
+        <Button>Google</Button>
+      </CardActions>
     </Card>
   )
 }

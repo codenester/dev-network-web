@@ -1,4 +1,4 @@
-import { Box, Container, createTheme, CssBaseline, Paper, ThemeProvider } from '@mui/material';
+import { Box, createTheme, CssBaseline, ThemeProvider } from '@mui/material';
 import { useContext, useEffect, useMemo } from 'react';
 import { RouterProvider } from 'react-router-dom';
 import { useMe } from './api/hook';
