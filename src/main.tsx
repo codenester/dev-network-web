@@ -4,9 +4,8 @@ import App from './App'
 import './index.css'
 import { initializeApp } from 'firebase/app'
 import { getStorage } from 'firebase/storage'
-import { CookieProvider } from './contexts'
+import { ProfileProvider, CookieProvider, LocalStorageProvider, LangProvider } from './contexts'
 import { QueryClient, QueryClientProvider } from 'react-query'
-import LocalStorageProvider from './contexts/local-storage-context'
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_KEY,
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
@@ -22,9 +21,13 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
     <LocalStorageProvider>
       <CookieProvider>
-        <QueryClientProvider client={apiQuery}>
-          <App />
-        </QueryClientProvider>
+        <LangProvider>
+          <QueryClientProvider client={apiQuery}>
+            <ProfileProvider>
+              <App />
+            </ProfileProvider>
+          </QueryClientProvider>
+        </LangProvider>
       </CookieProvider>
     </LocalStorageProvider>
   </React.StrictMode>,

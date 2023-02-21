@@ -1,10 +1,26 @@
-import { FC, useContext, useEffect, useRef } from "react";
+import { FC, ReactNode, Reducer, useContext, useEffect, useReducer, useRef } from "react";
 import { useLogin } from "../../api/hook";
 import { CookieContext } from "../../contexts/cookie-context";
 import { FormikErrors, useFormik } from "formik";
 import { TLoginInput } from "../../api/post-method";
-import { Box, Button, Card, CardActions, CardContent, CardHeader, Divider, FormControl, FormHelperText, Input, InputLabel, Link, OutlinedInput, TextField, Typography } from "@mui/material";
+import { Box, Card, CardActions, CardContent, CardHeader, Divider, FormControl, FormHelperText, IconButton, InputAdornment, Link, Stack, TextField, Typography } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
+import { Google, GitHub, FacebookTwoTone, Person, Lock, Visibility, VisibilityOff } from '@mui/icons-material'
+import { LangContext } from "../../contexts/lang-context";
+import { LocalStorageContext } from "../../contexts/local-storage-context";
+type TPasswordBox = {
+  type: 'password' | 'text',
+  Icon: ReactNode
+}
+type TPasswordAction = { type: 'password' | 'text' }
+const PasswordReducer: Reducer<TPasswordBox, TPasswordAction> = (_, action) => {
+  if (action.type === 'password') return { type: 'password', Icon: <Visibility fontSize="small" /> }
+  return { type: 'text', Icon: <VisibilityOff fontSize="small" /> }
+}
+const initialPasswordState: TPasswordBox = {
+  type: 'password',
+  Icon: <Visibility fontSize="small" />
+}
 type TLoginResponse = {
   token: string,
   refreshToken: string,
@@ -18,8 +34,14 @@ const initialValues: TLoginInput = {
 const LoginForm: FC = () => {
   const { setCookie } = useContext(CookieContext)
   const registerClick = () => setCookie({ name: 'isRegister', value: true })
+  const [passwordState, dispatch] = useReducer(PasswordReducer, initialPasswordState)
   const usernameRef = useRef<HTMLInputElement>(null)
+  const { lang } = useContext(LangContext)
+  const { localStorage: { lang: langCode } } = useContext(LocalStorageContext)
   const { handleSubmit, values: { username, password }, errors, handleChange } = useFormik({ initialValues, onSubmit, validate })
+  const togglePassword = () => {
+    dispatch({ type: passwordState.type === 'password' ? 'text' : 'password' })
+  }
   const { isLoading, isError, error, mutate } = useLogin({
     onSuccess: async (data: Response) => {
       const jsonData = await data.json()
@@ -49,27 +71,51 @@ const LoginForm: FC = () => {
     if (usernameRef.current) usernameRef.current.focus()
   }, [])
   return (
-    <Card elevation={1} sx={{ background: 'transparent', pt: 2, pb: 2, pl: 4, pr: 4, borderRadius: 2 }} raised>
-      <CardHeader title="Welcome" titleTypographyProps={{ fontSize: '2rem', color: '#ddd', textTransform: 'uppercase' }} sx={{ textAlign: 'center', mb: 3 }} />
+    <Card elevation={0} sx={{ background: 'transparent', pt: 2, pb: 2, pl: 4, pr: 4, borderRadius: 2 }} >
+      <CardHeader title={lang?.welcome[langCode]} titleTypographyProps={{ fontSize: '2rem', textTransform: 'uppercase' }} sx={{ textAlign: 'center', mb: 3 }} />
       <CardContent>
         <form autoComplete="off" onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <FormControl>
-            <TextField required autoFocus inputRef={usernameRef} color="success" error={!!errors.username} variant="outlined" label="Username" size="small" disabled={isLoading} id="username" name="username" onChange={handleChange} value={username} ref={usernameRef} />
+            <TextField InputProps={{
+              startAdornment: <InputAdornment position="start">
+                <Person fontSize="small" />
+              </InputAdornment>
+            }} required autoFocus inputRef={usernameRef} color="success" error={!!errors.username} variant="outlined" label={lang?.username[langCode]} size="small" disabled={isLoading} id="username" name="username" onChange={handleChange} value={username} ref={usernameRef} />
             <FormHelperText error={!!errors.username}>{errors.username ?? ""}</FormHelperText>
           </FormControl>
           <FormControl>
-            <TextField required color="success" error={!!errors.password} variant="outlined" label="Password" size="small" disabled={isLoading} id="password" name="password" onChange={handleChange} value={password} type="password" />
+            <TextField InputProps={{
+              startAdornment: <InputAdornment position="start">
+                <Lock fontSize="small" />
+              </InputAdornment>,
+              endAdornment: <InputAdornment position="end">
+                <IconButton onClick={togglePassword} size="small">
+                  {passwordState.Icon}
+                </IconButton>
+              </InputAdornment>
+            }} required color="success" error={!!errors.password} variant="outlined" label={lang?.password[langCode]} size="small" disabled={isLoading} id="password" name="password" onChange={handleChange} value={password} type={passwordState.type} />
             <FormHelperText error={!!errors.password}>{errors.password ?? ""}</FormHelperText>
           </FormControl>
-          <Link href="#" variant="body2" onClick={_ => { }}>Forgot password?</Link>
-          <LoadingButton loading={isLoading} loadingPosition="center" sx={{ mt: 1 }} variant="outlined" color="success" type="submit">Login</LoadingButton>
+          <Link href="#" variant="body2" onClick={_ => { }}>{lang?.["forgot-password"][langCode]}?</Link>
+          <LoadingButton loading={isLoading} loadingPosition="center" sx={{ mt: 1 }} variant="outlined" color="success" type="submit">{lang?.login[langCode]}</LoadingButton>
         </form>
       </CardContent>
       <CardActions sx={{ display: 'flex', flexDirection: 'column', gap: 1, justifyContent: 'center' }}>
         <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center' }}>
-          <Typography>No account?</Typography><Link href="#" onClick={registerClick}>Register</Link>
+          <Typography>{lang?.["no-account"][langCode]}?</Typography><Link href="#" onClick={registerClick}>{lang?.register[langCode]}</Link>
         </Box>
-        <Button>Google</Button>
+        <Divider variant="fullWidth" sx={{ width: '100%', mt: 5 }} light >or</Divider>
+        <Stack direction='row'>
+          <IconButton>
+            <Google />
+          </IconButton>
+          <IconButton>
+            <FacebookTwoTone />
+          </IconButton>
+          <IconButton>
+            <GitHub />
+          </IconButton>
+        </Stack>
       </CardActions>
     </Card>
   )

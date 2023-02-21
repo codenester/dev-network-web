@@ -1,7 +1,7 @@
 import { FC, createContext, Reducer, useReducer, ReactNode } from "react";
 import { deleteCookie, getCookie, setCookie } from "../utilities";
+import { TCookie } from "../utilities/types";
 type TCookieName = 'token' | 'deviceId' | 'refreshToken' | 'thirdPartyToken' | 'isRegister';
-type TCookie = { token?: string, deviceId?: string, refreshToken?: string, thirdPartyToken?: string, isRegister?: boolean }
 type TCookiePayload = { value?: string | boolean, expire?: number, getFromOriginOnly: boolean }
 type TCookieAction = { type: TCookieName, payload?: TCookiePayload }
 const cookieReducer: Reducer<TCookie, TCookieAction> = (state, action) => {

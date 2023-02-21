@@ -1,12 +1,12 @@
 import { createBrowserRouter } from "react-router-dom";
-import Home from "../pages/home";
 import Setting from "../pages/setting";
+import { Dashboard } from "@mui/icons-material";
 
 export default createBrowserRouter([
   {
     path: '/',
     id: 'home',
-    element: <Home />
+    element: <Dashboard />
   }, {
     path: '/setting',
     id: 'setting',

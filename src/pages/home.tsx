@@ -1,8 +1,11 @@
-import { FC, useContext } from "react";
+import { FC, ReactNode, useContext } from "react";
 import { useLogout } from "../api/hook";
 import { CookieContext } from "../contexts/cookie-context";
+import TopBar from "../components/utilities/nav-bars/TopBar";
+import SideBar from "../components/utilities/nav-bars/SideBar";
+import { Button } from "@mui/material";
 
-const Home: FC = () => {
+const Home: FC<{ children: ReactNode }> = ({ children }) => {
   const { removeCookie } = useContext(CookieContext)
   const { refetch } = useLogout({
     onError: (err: Error) => console.log(err.message)
@@ -16,8 +19,10 @@ const Home: FC = () => {
   }
   return (
     <div>
-      <h1>Home</h1>
-      <button onClick={logout}>Logout</button>
+      <TopBar />
+      <SideBar />
+      {children}
+      <Button color="error" variant="contained" onClick={logout}>Logout</Button>
     </div>
   )
 }

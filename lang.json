@@ -1,0 +1,50 @@
+{
+  "welcome": {
+    "en": "welcome",
+    "kh": "សូមស្វាគមន៍"
+  },
+  "login": {
+    "en": "login",
+    "kh": "ចូលប្រើប្រាស់"
+  },
+  "register": {
+    "en": "register",
+    "kh": "ចុះឈ្មោះប្រើប្រាស់"
+  },
+  "username": {
+    "en": "username",
+    "kh": "ឈ្មោះប្រើប្រាស់"
+  },
+  "password": {
+    "en": "password",
+    "kh": "ពាក្យសំងាត់"
+  },
+  "forgot-password": {
+    "en": "forgot password",
+    "kh": "ភ្លេចពាក្យសំងាត់"
+  },
+  "no-account": {
+    "en": "no account",
+    "kh": "មិនមានគណនី"
+  },
+  "dark": {
+    "en": "dark",
+    "kh": "ងងឹត"
+  },
+  "light": {
+    "en": "light",
+    "kh": "ភ្លឺ"
+  },
+  "en": {
+    "en": "english",
+    "kh": "អង់គ្លេស"
+  },
+  "kh": {
+    "en": "khmer",
+    "kh": "ខ្មែរ"
+  },
+  "or": {
+    "en": "or",
+    "kh": "ឬ"
+  }
+}
