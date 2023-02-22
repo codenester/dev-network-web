@@ -12,7 +12,7 @@ import { TLang } from './utilities/types';
 import { LangContext } from './contexts/lang-context';
 import { ProfileContext } from './contexts/profile-context';
 import LoadingScreen from './components/loading-screen';
-import { Home } from '@mui/icons-material';
+import Home from './pages/home';
 async function getLang(): Promise<TLang> {
   const res = await fetch('/lang.json')
   const data = await res.json()

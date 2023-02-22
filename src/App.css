@@ -1,0 +1,18 @@
+@font-face {
+  font-family: 'content';
+  src: url(/src/assets/fonts/Content-Regular.ttf);
+}
+
+@font-face {
+  font-family: 'moul';
+  src: url(/src/assets/fonts/Moul-Regular.ttf);
+}
+
+@font-face {
+  font-family: 'montserrat';
+  src: url(/src/assets/fonts/Montserrat-Regular.ttf);
+}
+
+* {
+  font-family: 'montserrat', 'content', 'roboto', Arial, Helvetica, sans-serif !important;
+}

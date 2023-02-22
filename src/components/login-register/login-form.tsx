@@ -1,9 +1,9 @@
-import { FC, ReactNode, Reducer, useContext, useEffect, useReducer, useRef } from "react";
+import { FC, ReactNode, Reducer, useContext, useEffect, useMemo, useReducer, useRef } from "react";
 import { useLogin } from "../../api/hook";
 import { CookieContext } from "../../contexts/cookie-context";
 import { FormikErrors, useFormik } from "formik";
 import { TLoginInput } from "../../api/post-method";
-import { Box, Card, CardActions, CardContent, CardHeader, Divider, FormControl, FormHelperText, IconButton, InputAdornment, Link, Stack, TextField, Typography } from "@mui/material";
+import { Box, Card, CardActions, CardContent, CardHeader, CardMedia, Divider, FormControl, FormHelperText, IconButton, InputAdornment, Link, Stack, TextField, Typography } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import { Google, GitHub, FacebookTwoTone, Person, Lock, Visibility, VisibilityOff } from '@mui/icons-material'
 import { LangContext } from "../../contexts/lang-context";
@@ -35,9 +35,8 @@ const LoginForm: FC = () => {
   const { setCookie } = useContext(CookieContext)
   const registerClick = () => setCookie({ name: 'isRegister', value: true })
   const [passwordState, dispatch] = useReducer(PasswordReducer, initialPasswordState)
-  const usernameRef = useRef<HTMLInputElement>(null)
   const { lang } = useContext(LangContext)
-  const { localStorage: { lang: langCode } } = useContext(LocalStorageContext)
+  const { localStorage: { lang: langCode, theme } } = useContext(LocalStorageContext)
   const { handleSubmit, values: { username, password }, errors, handleChange } = useFormik({ initialValues, onSubmit, validate })
   const togglePassword = () => {
     dispatch({ type: passwordState.type === 'password' ? 'text' : 'password' })
@@ -57,8 +56,8 @@ const LoginForm: FC = () => {
       setCookie({ name: 'thirdPartyToken', value: result.thirdPartyToken, expire: 1 })
     }
   })
+  const logoPath = useMemo(() => `/src/assets/images/logo-${theme === 'dark' ? 'white' : 'black'}.png`, [theme])
   function onSubmit(values: TLoginInput) {
-    console.log(values)
     mutate(values)
   }
   function validate(values: TLoginInput) {
@@ -67,12 +66,14 @@ const LoginForm: FC = () => {
     if (!values.password) error.password = 'Required'
     return error
   }
-  useEffect(() => {
-    if (usernameRef.current) usernameRef.current.focus()
-  }, [])
   return (
     <Card elevation={0} sx={{ background: 'transparent', pt: 2, pb: 2, pl: 4, pr: 4, borderRadius: 2 }} >
-      <CardHeader title={lang?.welcome[langCode]} titleTypographyProps={{ fontSize: '2rem', textTransform: 'uppercase' }} sx={{ textAlign: 'center', mb: 3 }} />
+      <CardHeader sx={{ minHeight: 100, mb: 3 }} title={
+        <Box display='flex' gap={2} alignItems='center' justifyContent='center' flexDirection='column'>
+          <img src={logoPath} alt="logo" style={{ maxHeight: 80, filter: 'invert(30%)' }} />
+          <Typography variant="body1" textTransform='uppercase' fontFamily='montserrat, moul, roboto, Arial !important'>{lang?.["app-name"][langCode]}</Typography>
+        </Box>
+      } />
       <CardContent>
         <form autoComplete="off" onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <FormControl>
@@ -80,7 +81,7 @@ const LoginForm: FC = () => {
               startAdornment: <InputAdornment position="start">
                 <Person fontSize="small" />
               </InputAdornment>
-            }} required autoFocus inputRef={usernameRef} color="success" error={!!errors.username} variant="outlined" label={lang?.username[langCode]} size="small" disabled={isLoading} id="username" name="username" onChange={handleChange} value={username} ref={usernameRef} />
+            }} required autoFocus color="success" error={!!errors.username} variant="outlined" label={lang?.username[langCode]} size="small" disabled={isLoading} id="username" name="username" onChange={handleChange} value={username} />
             <FormHelperText error={!!errors.username}>{errors.username ?? ""}</FormHelperText>
           </FormControl>
           <FormControl>

@@ -4,6 +4,7 @@ import App from './App'
 import './index.css'
 import { initializeApp } from 'firebase/app'
 import { getStorage } from 'firebase/storage'
+import { getAuth } from 'firebase/auth'
 import { ProfileProvider, CookieProvider, LocalStorageProvider, LangProvider } from './contexts'
 import { QueryClient, QueryClientProvider } from 'react-query'
 const firebaseConfig = {
@@ -17,6 +18,7 @@ const firebaseConfig = {
 const apiQuery = new QueryClient()
 export const app = initializeApp(firebaseConfig)
 export const storage = getStorage(app)
+export const auth = getAuth(app)
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
     <LocalStorageProvider>

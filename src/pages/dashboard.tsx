@@ -1,12 +1,11 @@
-import { Card, CardContent } from "@mui/material";
+import { Box } from "@mui/material";
 import { FC } from "react";
 
 const Dashboard: FC = () => {
   return (
-    <Card>
-      <CardContent>
-        Dashboard
-      </CardContent>
-    </Card>
+    <Box flex={1}>
+      Dashboard
+    </Box>
   )
 }
+export default Dashboard

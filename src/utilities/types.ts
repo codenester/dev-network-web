@@ -15,6 +15,7 @@ export type TLang = {
   or: TLangProp,
   'no-account': TLangProp,
   'forgot-password': TLangProp,
+  'app-name': TLangProp,
 }
 export type TMe = {
   address?: string,

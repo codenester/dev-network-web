@@ -1,6 +1,6 @@
 import { createBrowserRouter } from "react-router-dom";
 import Setting from "../pages/setting";
-import { Dashboard } from "@mui/icons-material";
+import Dashboard from "../pages/dashboard";
 
 export default createBrowserRouter([
   {
