@@ -1,4 +1,4 @@
-import { Box, createTheme, CssBaseline, ThemeProvider } from '@mui/material';
+import { Box, colors, createTheme, CssBaseline, ThemeProvider } from '@mui/material';
 import { useContext, useEffect, useMemo } from 'react';
 import { RouterProvider } from 'react-router-dom';
 import { useMe } from './api/hook';
@@ -25,7 +25,13 @@ function App() {
   const { user, setUser } = useContext(ProfileContext)
   const { localStorage } = useContext(LocalStorageContext)
   const { setLang } = useContext(LangContext)
-  const theme = useMemo(() => createTheme({ palette: { mode: localStorage.theme } }), [localStorage.theme])
+  const theme = useMemo(() => createTheme({
+    palette: {
+      mode: localStorage.theme,
+      background: {
+      }
+    }
+  }), [localStorage.theme])
   const { isLoading: langLoading } = useQuery('lang', () => getLang(), { onSuccess: setLang, onError: e => console.log(e), refetchOnWindowFocus: false })
   const { refetch, isLoading } = useMe({
     onError: err => console.log(err),

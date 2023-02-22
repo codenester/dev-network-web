@@ -17,6 +17,12 @@ export type TLang = {
   'forgot-password': TLangProp,
   'app-name': TLangProp,
 }
+export type TLoginResponse = {
+  token: string,
+  refreshToken: string,
+  thirdPartyToken?: string,
+  deviceId: string
+}
 export type TMe = {
   address?: string,
   birthDate?: string,

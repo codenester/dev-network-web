@@ -33,10 +33,18 @@ const getReq = (url: string, params?: { key: string, value: string | number | bo
         opt.headers['Authorization' as keyof HeadersInit] = `bearer ${getCookie(import.meta.env.VITE_COOKIE_REFRESH_TOKEN)}`
       }
       const r = await fetch(apiMap.query.refresh.url, opt)
-      await r.json()
-      const res = await fetch(url, getOption())
-      const d = await res.json()
-      return d
+      try {
+        await r.json()
+        const res = await fetch(url, getOption())
+        try {
+          const d = await res.json()
+          return d
+        } catch {
+          throw res
+        }
+      } catch {
+        throw r
+      }
     }
   }
 }

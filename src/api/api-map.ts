@@ -20,5 +20,9 @@ export default {
       url: `${basApiUrl}/auth/login`,
       name: 'login'
     },
+    'register-by-3rd-party': {
+      url: `${basApiUrl}/auth/register-by-third-party`,
+      name: 'register-by-3rd-party'
+    }
   }
 }

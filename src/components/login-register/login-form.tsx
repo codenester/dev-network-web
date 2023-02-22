@@ -1,5 +1,5 @@
 import { FC, ReactNode, Reducer, useContext, useEffect, useMemo, useReducer, useRef } from "react";
-import { useLogin } from "../../api/hook";
+import { useLogin, useProviderLogin } from "../../api/hook";
 import { CookieContext } from "../../contexts/cookie-context";
 import { FormikErrors, useFormik } from "formik";
 import { TLoginInput } from "../../api/post-method";
@@ -8,6 +8,7 @@ import { LoadingButton } from "@mui/lab";
 import { Google, GitHub, FacebookTwoTone, Person, Lock, Visibility, VisibilityOff } from '@mui/icons-material'
 import { LangContext } from "../../contexts/lang-context";
 import { LocalStorageContext } from "../../contexts/local-storage-context";
+import { TLoginResponse } from "../../utilities/types";
 type TPasswordBox = {
   type: 'password' | 'text',
   Icon: ReactNode
@@ -20,12 +21,6 @@ const PasswordReducer: Reducer<TPasswordBox, TPasswordAction> = (_, action) => {
 const initialPasswordState: TPasswordBox = {
   type: 'password',
   Icon: <Visibility fontSize="small" />
-}
-type TLoginResponse = {
-  token: string,
-  refreshToken: string,
-  thirdPartyToken?: string,
-  deviceId: string
 }
 const initialValues: TLoginInput = {
   username: '',
@@ -41,22 +36,19 @@ const LoginForm: FC = () => {
   const togglePassword = () => {
     dispatch({ type: passwordState.type === 'password' ? 'text' : 'password' })
   }
-  const { isLoading, isError, error, mutate } = useLogin({
-    onSuccess: async (data: Response) => {
-      const jsonData = await data.json()
-      const result: TLoginResponse = {
-        token: jsonData[import.meta.env.VITE_COOKIE_ACCESS_TOKEN],
-        refreshToken: jsonData[import.meta.env.VITE_COOKIE_REFRESH_TOKEN],
-        deviceId: jsonData[import.meta.env.VITE_COOKIE_DEVICE_ID],
-        thirdPartyToken: jsonData[import.meta.env.VITE_THIRD_PARTY_TOKEN]
-      }
-      setCookie({ name: 'token', value: result.token, expire: 1 })
-      setCookie({ name: 'deviceId', value: result.deviceId, expire: 15 })
-      setCookie({ name: 'refreshToken', value: result.refreshToken, expire: 15 })
-      setCookie({ name: 'thirdPartyToken', value: result.thirdPartyToken, expire: 1 })
+  const { isLoading, mutate } = useLogin({
+    onSuccess: (data: TLoginResponse) => {
+      setCookie({ name: 'token', value: data.token, expire: 1 })
+      setCookie({ name: 'deviceId', value: data.deviceId, expire: 15 })
+      setCookie({ name: 'refreshToken', value: data.refreshToken, expire: 15 })
+      setCookie({ name: 'thirdPartyToken', value: data.thirdPartyToken, expire: 1 })
     }
   })
+  const { isLoading: fbLoading, refetch: fbRefetch } = useProviderLogin('facebook', { onSuccess: d => console.log(d) })
+  const { isLoading: gLoading, refetch: gRefetch } = useProviderLogin('google', { onSuccess: d => console.log(d) })
+  const { isLoading: ghLoading, refetch: ghRefetch } = useProviderLogin('github', { onSuccess: d => console.log(d) })
   const logoPath = useMemo(() => `/src/assets/images/logo-${theme === 'dark' ? 'white' : 'black'}.png`, [theme])
+  const loading = useMemo(() => isLoading || fbLoading || gLoading || ghLoading, [isLoading, fbLoading, gLoading, ghLoading])
   function onSubmit(values: TLoginInput) {
     mutate(values)
   }
@@ -70,35 +62,61 @@ const LoginForm: FC = () => {
     <Card elevation={0} sx={{ background: 'transparent', pt: 2, pb: 2, pl: 4, pr: 4, borderRadius: 2 }} >
       <CardHeader sx={{ minHeight: 100, mb: 3 }} title={
         <Box display='flex' gap={2} alignItems='center' justifyContent='center' flexDirection='column'>
-          <img src={logoPath} alt="logo" style={{ maxHeight: 80, filter: 'invert(30%)' }} />
+          <img src={logoPath} alt="logo" style={{ maxHeight: 80, filter: 'invert(10%)' }} />
           <Typography variant="body1" textTransform='uppercase' fontFamily='montserrat, moul, roboto, Arial !important'>{lang?.["app-name"][langCode]}</Typography>
         </Box>
       } />
       <CardContent>
         <form autoComplete="off" onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <FormControl>
-            <TextField InputProps={{
-              startAdornment: <InputAdornment position="start">
-                <Person fontSize="small" />
-              </InputAdornment>
-            }} required autoFocus color="success" error={!!errors.username} variant="outlined" label={lang?.username[langCode]} size="small" disabled={isLoading} id="username" name="username" onChange={handleChange} value={username} />
+            <TextField
+              InputProps={{
+                startAdornment: <InputAdornment position="start">
+                  <Person fontSize="small" />
+                </InputAdornment>
+              }}
+              required
+              autoFocus
+              color="success"
+              error={!!errors.username}
+              variant="outlined"
+              label={lang?.username[langCode]}
+              size="small"
+              disabled={loading}
+              id="username"
+              name="username"
+              onChange={handleChange}
+              value={username} />
             <FormHelperText error={!!errors.username}>{errors.username ?? ""}</FormHelperText>
           </FormControl>
           <FormControl>
-            <TextField InputProps={{
-              startAdornment: <InputAdornment position="start">
-                <Lock fontSize="small" />
-              </InputAdornment>,
-              endAdornment: <InputAdornment position="end">
-                <IconButton onClick={togglePassword} size="small">
-                  {passwordState.Icon}
-                </IconButton>
-              </InputAdornment>
-            }} required color="success" error={!!errors.password} variant="outlined" label={lang?.password[langCode]} size="small" disabled={isLoading} id="password" name="password" onChange={handleChange} value={password} type={passwordState.type} />
+            <TextField
+              InputProps={{
+                startAdornment: <InputAdornment position="start">
+                  <Lock fontSize="small" />
+                </InputAdornment>,
+                endAdornment: <InputAdornment position="end">
+                  <IconButton onClick={togglePassword} size="small">
+                    {passwordState.Icon}
+                  </IconButton>
+                </InputAdornment>
+              }}
+              required
+              color="success"
+              error={!!errors.password}
+              variant="outlined"
+              label={lang?.password[langCode]}
+              size="small"
+              disabled={loading}
+              id="password"
+              name="password"
+              onChange={handleChange}
+              value={password}
+              type={passwordState.type} />
             <FormHelperText error={!!errors.password}>{errors.password ?? ""}</FormHelperText>
           </FormControl>
           <Link href="#" variant="body2" onClick={_ => { }}>{lang?.["forgot-password"][langCode]}?</Link>
-          <LoadingButton loading={isLoading} loadingPosition="center" sx={{ mt: 1 }} variant="outlined" color="success" type="submit">{lang?.login[langCode]}</LoadingButton>
+          <LoadingButton loading={loading} loadingPosition="center" sx={{ mt: 1 }} variant="outlined" color="success" type="submit">{lang?.login[langCode]}</LoadingButton>
         </form>
       </CardContent>
       <CardActions sx={{ display: 'flex', flexDirection: 'column', gap: 1, justifyContent: 'center' }}>
@@ -107,13 +125,13 @@ const LoginForm: FC = () => {
         </Box>
         <Divider variant="fullWidth" sx={{ width: '100%', mt: 5 }} light >or</Divider>
         <Stack direction='row'>
-          <IconButton>
+          <IconButton onClick={() => gRefetch()}>
             <Google />
           </IconButton>
-          <IconButton>
+          <IconButton onClick={() => fbRefetch()}>
             <FacebookTwoTone />
           </IconButton>
-          <IconButton>
+          <IconButton onClick={() => ghRefetch()}>
             <GitHub />
           </IconButton>
         </Stack>
