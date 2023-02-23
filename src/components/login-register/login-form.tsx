@@ -1,9 +1,9 @@
-import { FC, ReactNode, Reducer, useContext, useEffect, useMemo, useReducer, useRef } from "react";
-import { useLogin, useProviderLogin } from "../../api/hook";
+import { FC, ReactNode, Reducer, useContext, useMemo, useReducer } from "react";
+import { useLogin } from "../../api/hook";
 import { CookieContext } from "../../contexts/cookie-context";
 import { FormikErrors, useFormik } from "formik";
 import { TLoginInput } from "../../api/post-method";
-import { Box, Card, CardActions, CardContent, CardHeader, CardMedia, Divider, FormControl, FormHelperText, IconButton, InputAdornment, Link, Stack, TextField, Typography } from "@mui/material";
+import { Box, Card, CardActions, CardContent, CardHeader, Divider, FormControl, FormHelperText, IconButton, InputAdornment, Link, Stack, TextField, Typography } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import { Google, GitHub, FacebookTwoTone, Person, Lock, Visibility, VisibilityOff } from '@mui/icons-material'
 import { LangContext } from "../../contexts/lang-context";
@@ -44,9 +44,9 @@ const LoginForm: FC = () => {
       setCookie({ name: 'thirdPartyToken', value: data.thirdPartyToken, expire: 1 })
     }
   })
-  const { isLoading: fbLoading, refetch: fbRefetch } = useProviderLogin('facebook', { onSuccess: d => console.log(d) })
-  const { isLoading: gLoading, refetch: gRefetch } = useProviderLogin('google', { onSuccess: d => console.log(d) })
-  const { isLoading: ghLoading, refetch: ghRefetch } = useProviderLogin('github', { onSuccess: d => console.log(d) })
+  const { isLoading: fbLoading, mutate: fbMutate } = useLogin({ onSuccess: d => console.log(d) }, 'facebook')
+  const { isLoading: gLoading, mutate: gMutate } = useLogin({ onSuccess: d => console.log(d) }, 'google')
+  const { isLoading: ghLoading, mutate: ghMutate } = useLogin({ onSuccess: d => console.log(d) }, 'github')
   const logoPath = useMemo(() => `/src/assets/images/logo-${theme === 'dark' ? 'white' : 'black'}.png`, [theme])
   const loading = useMemo(() => isLoading || fbLoading || gLoading || ghLoading, [isLoading, fbLoading, gLoading, ghLoading])
   function onSubmit(values: TLoginInput) {
@@ -125,13 +125,13 @@ const LoginForm: FC = () => {
         </Box>
         <Divider variant="fullWidth" sx={{ width: '100%', mt: 5 }} light >or</Divider>
         <Stack direction='row'>
-          <IconButton onClick={() => gRefetch()}>
+          <IconButton onClick={() => gMutate(undefined)}>
             <Google />
           </IconButton>
-          <IconButton onClick={() => fbRefetch()}>
+          <IconButton onClick={() => fbMutate(undefined)}>
             <FacebookTwoTone />
           </IconButton>
-          <IconButton onClick={() => ghRefetch()}>
+          <IconButton onClick={() => ghMutate(undefined)}>
             <GitHub />
           </IconButton>
         </Stack>

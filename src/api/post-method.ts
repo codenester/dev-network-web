@@ -17,7 +17,33 @@ export const postOption = (body: any = {}): RequestInit => ({
   body: JSON.stringify(body)
 })
 export type TLoginInput = { username: string, password: string }
-export const login = async (data: TLoginInput): Promise<TLoginResponse> => {
+export type TProviderAuthKey = 'facebook' | 'google' | 'github'
+export const login = async (data?: TLoginInput, key?: TProviderAuthKey): Promise<TLoginResponse> => {
+  let uid = ""
+  if (key) {
+    let provider: AuthProvider
+    switch (key) {
+      case 'facebook':
+        provider = new FacebookAuthProvider()
+        break
+      case 'github':
+        provider = new GithubAuthProvider()
+        break
+      default:
+        provider = new GoogleAuthProvider()
+        break
+    }
+    const result = await signInWithPopup(auth, provider)
+    const token = await result.user.getIdToken()
+    uid = result.user.uid
+    console.log(token)
+    setCookie({ name: import.meta.env.VITE_THIRD_PARTY_TOKEN, value: token, expire: 1 })
+    data = {
+      username: "",
+      password: `${uid}Az0!`
+    }
+    console.log(data)
+  }
   const res = await fetch(apiMap.mutation.login.url, postOption(data))
   try {
     const dt = await res.json()
@@ -28,50 +54,38 @@ export const login = async (data: TLoginInput): Promise<TLoginResponse> => {
       thirdPartyToken: dt[import.meta.env.VITE_THIRD_PARTY_TOKEN]
     }
   } catch {
+    if (key) {
+      const op = postOption()
+      const r = await fetch(apiMap.mutation["register-by-3rd-party"].url, op)
+      try {
+        const user = await r.json()
+        const input: TLoginInput = {
+          username: user.Username,
+          password: `${uid}Az0!`
+        }
+        console.log(input)
+        const opt = postOption(input)
+        console.log(opt)
+        const rs = await fetch(apiMap.mutation.login.url, opt)
+        try {
+          const dta = await rs.json()
+          return {
+            token: dta[import.meta.env.VITE_COOKIE_ACCESS_TOKEN],
+            refreshToken: dta[import.meta.env.VITE_COOKIE_REFRESH_TOKEN],
+            deviceId: dta[import.meta.env.VITE_COOKIE_DEVICE_ID],
+            thirdPartyToken: dta[import.meta.env.VITE_THIRD_PARTY_TOKEN]
+          }
+        } catch {
+          throw rs
+        }
+      } catch {
+        throw r
+      }
+    }
     throw res
   }
 }
-export type TProviderAuthKey = 'facebook' | 'google' | 'github'
-export const providerAuthLogin = async (providerKey: TProviderAuthKey) => {
-  let provider: AuthProvider
-  switch (providerKey) {
-    case 'facebook':
-      provider = new GoogleAuthProvider()
-      break
-    case 'github':
-      provider = new GithubAuthProvider()
-      break
-    default:
-      provider = new GoogleAuthProvider()
-      break
-  }
-  const result = await signInWithPopup(auth, provider)
-  const token = await result.user.getIdToken()
-  setCookie({ name: import.meta.env.VITE_THIRD_PARTY_TOKEN, value: token, expire: 1 })
-  const loginInput: TLoginInput = {
-    username: "",
-    password: `${result.user.uid}Az0!`
-  }
-  try {
-    const res = await fetch(apiMap.mutation.login.url, postOption(loginInput))
-    const dt = await res.json()
-    return dt
-  } catch {
-    const r = await fetch(apiMap.mutation["register-by-3rd-party"].url, postOption())
-    try {
-      const user = await r.json()
-      const rs = await fetch(apiMap.mutation.login.url, postOption({ username: user.username, password: `${result.user.uid}Az0!` }))
-      try {
-        const data = await rs.json()
-        return data
-      } catch {
-        throw rs
-      }
-    } catch {
-      throw r
-    }
-  }
-}
+
 const postReq = async <T>(url: string, data?: T): Promise<T> => {
   try {
     const res = await fetch(url, postOption(data))
