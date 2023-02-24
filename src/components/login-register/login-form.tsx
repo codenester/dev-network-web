@@ -36,17 +36,16 @@ const LoginForm: FC = () => {
   const togglePassword = () => {
     dispatch({ type: passwordState.type === 'password' ? 'text' : 'password' })
   }
-  const { isLoading, mutate } = useLogin({
-    onSuccess: (data: TLoginResponse) => {
-      setCookie({ name: 'token', value: data.token, expire: 1 })
-      setCookie({ name: 'deviceId', value: data.deviceId, expire: 15 })
-      setCookie({ name: 'refreshToken', value: data.refreshToken, expire: 15 })
-      setCookie({ name: 'thirdPartyToken', value: data.thirdPartyToken, expire: 1 })
-    }
-  })
-  const { isLoading: fbLoading, mutate: fbMutate } = useLogin({ onSuccess: d => console.log(d) }, 'facebook')
-  const { isLoading: gLoading, mutate: gMutate } = useLogin({ onSuccess: d => console.log(d) }, 'google')
-  const { isLoading: ghLoading, mutate: ghMutate } = useLogin({ onSuccess: d => console.log(d) }, 'github')
+  const onSuccess = (d: TLoginResponse) => {
+    setCookie({ name: 'token', value: d.token, expire: 1 })
+    setCookie({ name: 'deviceId', value: d.deviceId, expire: 15 })
+    setCookie({ name: 'refreshToken', value: d.refreshToken, expire: 15 })
+    setCookie({ name: 'thirdPartyToken', value: d.thirdPartyToken, expire: 1 })
+  }
+  const { isLoading, mutate } = useLogin({ onSuccess })
+  const { isLoading: fbLoading, mutate: fbMutate } = useLogin({ onSuccess }, 'facebook')
+  const { isLoading: gLoading, mutate: gMutate } = useLogin({ onSuccess }, 'google')
+  const { isLoading: ghLoading, mutate: ghMutate } = useLogin({ onSuccess }, 'github')
   const logoPath = useMemo(() => `/src/assets/images/logo-${theme === 'dark' ? 'white' : 'black'}.png`, [theme])
   const loading = useMemo(() => isLoading || fbLoading || gLoading || ghLoading, [isLoading, fbLoading, gLoading, ghLoading])
   function onSubmit(values: TLoginInput) {

@@ -16,7 +16,7 @@ export const postOption = (body: any = {}): RequestInit => ({
   method: 'POST',
   body: JSON.stringify(body)
 })
-export type TLoginInput = { username: string, password: string }
+export type TLoginInput = { username?: string, password: string }
 export type TProviderAuthKey = 'facebook' | 'google' | 'github'
 export const login = async (data?: TLoginInput, key?: TProviderAuthKey): Promise<TLoginResponse> => {
   let uid = ""
@@ -36,16 +36,37 @@ export const login = async (data?: TLoginInput, key?: TProviderAuthKey): Promise
     const result = await signInWithPopup(auth, provider)
     const token = await result.user.getIdToken()
     uid = result.user.uid
-    console.log(token)
     setCookie({ name: import.meta.env.VITE_THIRD_PARTY_TOKEN, value: token, expire: 1 })
     data = {
-      username: "",
       password: `${uid}Az0!`
     }
-    console.log(data)
   }
-  const res = await fetch(apiMap.mutation.login.url, postOption(data))
+  const opt = postOption(data)
   try {
+    const res = await fetch(apiMap.mutation.login.url, opt)
+    if (res.status != 200) {
+      const option = postOption()
+      let r: Response = new Response()
+      try {
+        r = await fetch(apiMap.mutation["register-by-3rd-party"].url, option)
+        const dRegister = await r.json()
+        try {
+          r = await fetch(apiMap.mutation.login.url, postOption({ username: dRegister.Username, password: data?.password }))
+          const loginData = await r.json()
+          return {
+            token: loginData[import.meta.env.VITE_COOKIE_ACCESS_TOKEN],
+            refreshToken: loginData[import.meta.env.VITE_COOKIE_REFRESH_TOKEN],
+            deviceId: loginData[import.meta.env.VITE_COOKIE_DEVICE_ID],
+            thirdPartyToken: loginData[import.meta.env.VITE_THIRD_PARTY_TOKEN]
+          }
+        } catch {
+          throw r
+        }
+      } catch {
+        console.log(r)
+        throw r
+      }
+    }
     const dt = await res.json()
     return {
       token: dt[import.meta.env.VITE_COOKIE_ACCESS_TOKEN],
@@ -54,35 +75,27 @@ export const login = async (data?: TLoginInput, key?: TProviderAuthKey): Promise
       thirdPartyToken: dt[import.meta.env.VITE_THIRD_PARTY_TOKEN]
     }
   } catch {
-    if (key) {
-      const op = postOption()
-      const r = await fetch(apiMap.mutation["register-by-3rd-party"].url, op)
+    const option = postOption()
+    let r: Response = new Response()
+    try {
+      r = await fetch(apiMap.mutation["register-by-3rd-party"].url, option)
+      const dRegister = await r.json()
       try {
-        const user = await r.json()
-        const input: TLoginInput = {
-          username: user.Username,
-          password: `${uid}Az0!`
-        }
-        console.log(input)
-        const opt = postOption(input)
-        console.log(opt)
-        const rs = await fetch(apiMap.mutation.login.url, opt)
-        try {
-          const dta = await rs.json()
-          return {
-            token: dta[import.meta.env.VITE_COOKIE_ACCESS_TOKEN],
-            refreshToken: dta[import.meta.env.VITE_COOKIE_REFRESH_TOKEN],
-            deviceId: dta[import.meta.env.VITE_COOKIE_DEVICE_ID],
-            thirdPartyToken: dta[import.meta.env.VITE_THIRD_PARTY_TOKEN]
-          }
-        } catch {
-          throw rs
+        r = await fetch(apiMap.mutation.login.url, postOption({ username: dRegister.Username, password: data?.password }))
+        const loginData = await r.json()
+        return {
+          token: loginData[import.meta.env.VITE_COOKIE_ACCESS_TOKEN],
+          refreshToken: loginData[import.meta.env.VITE_COOKIE_REFRESH_TOKEN],
+          deviceId: loginData[import.meta.env.VITE_COOKIE_DEVICE_ID],
+          thirdPartyToken: loginData[import.meta.env.VITE_THIRD_PARTY_TOKEN]
         }
       } catch {
         throw r
       }
+    } catch {
+      console.log(r)
+      throw r
     }
-    throw res
   }
 }
 
