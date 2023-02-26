@@ -9,6 +9,8 @@ import { Google, GitHub, FacebookTwoTone, Person, Lock, Visibility, VisibilityOf
 import { LangContext } from "../../contexts/lang-context";
 import { LocalStorageContext } from "../../contexts/local-storage-context";
 import { TLoginResponse } from "../../utilities/types";
+import logoWhite from '../../assets/images/logo-white.png';
+import logoBlack from '../../assets/images/logo-black.png';
 type TPasswordBox = {
   type: 'password' | 'text',
   Icon: ReactNode
@@ -46,7 +48,8 @@ const LoginForm: FC = () => {
   const { isLoading: fbLoading, mutate: fbMutate } = useLogin({ onSuccess }, 'facebook')
   const { isLoading: gLoading, mutate: gMutate } = useLogin({ onSuccess }, 'google')
   const { isLoading: ghLoading, mutate: ghMutate } = useLogin({ onSuccess }, 'github')
-  const logoPath = useMemo(() => `/src/assets/images/logo-${theme === 'dark' ? 'white' : 'black'}.png`, [theme])
+  // const logoPath = useMemo(() => `/src/assets/images/logo-${theme === 'dark' ? 'white' : 'black'}.png`, [theme])
+  const logoPath = useMemo(() => theme === 'dark' ? logoWhite : logoBlack, [theme])
   const loading = useMemo(() => isLoading || fbLoading || gLoading || ghLoading, [isLoading, fbLoading, gLoading, ghLoading])
   function onSubmit(values: TLoginInput) {
     mutate(values)
